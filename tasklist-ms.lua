@@ -20,7 +20,7 @@ end
 return {
   {
     BulletList = function(bl)
-      -- Fixes taskitem symbols (uses the FreeRoman font)
+      -- Fixes taskitem symbols (by rendering them in the FreeRoman font)
       if FORMAT == 'ms' then
         return bl:walk {
           Plain = function(el)
@@ -33,7 +33,7 @@ return {
     end,
     Underline = function(ul)
       -- Makes underline really underlined, not italic
-      -- (NOTE: '"' inside underline causes error)
+      -- (NOTE: Simplisic implementation: '"' inside underline probably causes an error)
       if FORMAT == 'ms' then
         table.insert(ul.content, 1, pandoc.RawInline("ms", '\n.UL "'))
         table.insert(ul.content, pandoc.RawInline("ms", '"\n'))
@@ -41,7 +41,7 @@ return {
       end
     end,
     Header = function(h)
-      -- Changes font in headlines based on variables for the output.
+      -- Changes font in headlines based on template variables
       if FORMAT == 'ms' then
         vars = PANDOC_WRITER_OPTIONS.variables or {}
         -- We need to know this so we can switch back to it
@@ -49,10 +49,11 @@ return {
         hfam = utils.stringify(vars['heading-fontfam'] or '')
         lvl = tonumber(utils.stringify(vars['heading-fontfam-max-level'] or '3'))
         if #docfam > 0 and #hfam > 0 and h.level <= lvl then
-          -- Renders headings up to level lvl in this font
-          table.insert(h.content, 1, pandoc.RawInline("ms", ".fam " .. hfam .. "\n"))
-          table.insert(h.content, pandoc.RawInline("ms", "\n.fam " .. docfam .. "\n"))
-          return pandoc.Header(h.level, h.content, h.attr)
+          return pandoc.Blocks({
+             pandoc.RawBlock('ms', '.ds FAM ' .. hfam),
+             h,
+             pandoc.RawBlock('ms', '.ds FAM ' .. docfam)
+          })
         end
       end
     end,
