@@ -1,3 +1,8 @@
+-- Various fixes for pdroff output:
+-- (1) Tasklist items
+-- (2) Real underline (not italic)
+-- (3) Configurable font in headings
+
 local utils = require 'pandoc.utils'
 
 t_done = "☒"
