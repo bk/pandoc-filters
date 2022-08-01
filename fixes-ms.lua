@@ -88,6 +88,7 @@ return {
         s = s:gsub("%.TE\n", cap, 1)
         -- The first line ending with a dot is the colspec at the top
         s = s:gsub("%.\n", ".\n=\n", 1)
+        s = s:gsub("\n\n+", "\n") -- we almost certainly do not want empty lines
         return pandoc.RawBlock('ms', s)
       end
     end,
