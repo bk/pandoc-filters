@@ -127,6 +127,24 @@ return {
         return pandoc.Blocks(ret)
       end
     end,
+    Para = function(p)
+      -- Handle (La)TeX `\noindent` at the start of a paragraph
+      local c = p.content
+      if #c < 2 then
+        return
+      end
+      if c[1].t == 'RawInline' and c[1].format:match('tex$') and c[1].text:match('\\noindent') then
+        p.content:remove(1)
+        -- Remove initial whitespace from the remainder
+        if c[1].t == 'Space' or c[1].t == 'SoftBreak' then
+          p.content:remove(1)
+        end
+        return pandoc.Blocks({
+            pandoc.RawBlock('ms', '.nr PI 0m'),
+            p,
+            pandoc.RawBlock('ms', '.nr PI \\n[PIORIG]')})
+      end
+    end,
     Header = function(h)
       -- Changes font in headlines based on template variables.
       -- TODO: walk the header object so as to fix italics in a better way
