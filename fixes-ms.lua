@@ -34,12 +34,13 @@ function is_in(ls, k)
   return false
 end
 
+local vars = PANDOC_WRITER_OPTIONS.variables or {}
+
 return {
   {
     BulletList = function(bl)
       -- Fixes taskitem symbols (by rendering them in the FreeRoman font)
       if FORMAT == 'ms' then
-        local vars = PANDOC_WRITER_OPTIONS.variables or {}
         if vars['no-tasklist-filter'] then
           -- We don't need to run this filter since the tasklist symbols
           -- are handled by .char definitions in the template instead
@@ -100,14 +101,13 @@ return {
       -- of a two-element list. The first element is prepended, the last
       -- postpended as a RawBLock.
       if FORMAT == 'ms' then
-        local vars = PANDOC_WRITER_OPTIONS.variables or {}
         local id, classes, attr = div.identifier, div.classes, div.attributes
-        if attr == nil then
-          attr = {}
-        end
+        if id == nil then id = '' end
+        id = '#'..id
+        if attr == nil then attr = {} end
         local known_cls = vars['ms-div-classes'] or {}
         local known_attr = vars['ms-div-attr'] or {}
-        if known_cls == {} and known_attr == {} then
+        if next(known_cls) == nil and next(known_attr) == nil then
           return
         end
         local ret = {div}
@@ -119,7 +119,7 @@ return {
           end
         end
         for k, action in pairs(known_cls) do
-          if is_in(classes, k) then
+          if k == id or is_in(classes, k) then
             table.insert(ret, 1, pandoc.RawBlock('ms', utils.stringify(action[1])))
             table.insert(ret, pandoc.RawBlock('ms', utils.stringify(action[2])))
           end
@@ -149,7 +149,6 @@ return {
       -- Changes font in headlines based on template variables.
       -- TODO: walk the header object so as to fix italics in a better way
       if FORMAT == 'ms' then
-        local vars = PANDOC_WRITER_OPTIONS.variables or {}
         -- We need to know this so we can switch back to it
         local docfam = utils.stringify(vars['fontfamily'] or '')
         local hfam = utils.stringify(vars['heading-fontfam'] or '')
