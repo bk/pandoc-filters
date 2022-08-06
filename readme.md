@@ -25,3 +25,10 @@ Make images work in PDF output based on roff ms by using the `.PDFPIC` macro.  L
 -  Image directories must be writable or already contain PDF images with the correct filenames.
 -  Image PDF conversion requires ImageMagick or equivalent (the `convert` command).
 -  Automatic size determination requires `pdfinfo` (part of Poppler).
+
+## Filters for LaTeX output
+
+### fixes-tex.lua
+
+- Fenced divs to environments by known class, or by `data-latex-environment` attribute.
+- H6 support.
