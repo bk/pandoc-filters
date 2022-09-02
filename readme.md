@@ -32,3 +32,36 @@ Make images work in PDF output based on roff ms by using the `.PDFPIC` macro.  L
 
 - Fenced divs to environments by known class, or by `data-latex-environment` attribute.
 - H6 support.
+
+## Scripts
+
+### admonitions.py
+
+Transform Python-Markdown admonitions to Pandoc fenced divs. When run as a
+script may either take a single filename or read markdown content from stdin.
+
+An [admonition](https://python-markdown.github.io/extensions/admonition/) looks
+like this:
+
+```markdown
+!!! note "My title"
+    Some text: This is the first paragraph
+
+    Second paragraph.
+```
+
+Resulting in this HTML output when processed:
+
+```html
+<div class="admonition note">
+  <p class="admonition-title">My title</p>
+  <p>Some text: This is the first paragraph.</p>
+  <p>Second paragraph.</p>
+</div>
+```
+
+A missing title results in the admonition type being used as title (capitalized).
+An empty title (`""`) results in no title being used.
+
+Recommended admonition types (the same as for RsT): attention, caution, danger,
+error, hint, important, note, tip, warning.
