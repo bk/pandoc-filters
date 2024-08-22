@@ -4,6 +4,7 @@
 -- (3) Configurable font in headings
 
 local utils = require 'pandoc.utils'
+-- local logging = require 'logging'
 
 local t_done = "☒" -- u2612
 local t_todo = "☐"  -- u2610
@@ -114,14 +115,14 @@ return {
         for atyp, actions in pairs(known_attr) do
           if attr[atyp] and actions[attr[atyp]] then
             local action = actions[attr[atyp]]
-            table.insert(ret, 1, pandoc.RawBlock('ms', utils.stringify(action[1])))
-            table.insert(ret, pandoc.RawBlock('ms', utils.stringify(action[2])))
+            table.insert(ret, 1, pandoc.RawBlock('ms', action[1] and action[1]:render() or ''))
+            table.insert(ret, pandoc.RawBlock('ms', action[2] and action[2]:render() or ''))
           end
         end
         for k, action in pairs(known_cls) do
           if k == id or is_in(classes, k) then
-            table.insert(ret, 1, pandoc.RawBlock('ms', utils.stringify(action[1])))
-            table.insert(ret, pandoc.RawBlock('ms', utils.stringify(action[2])))
+            table.insert(ret, 1, pandoc.RawBlock('ms', action[1] and action[1]:render() or ''))
+            table.insert(ret, pandoc.RawBlock('ms', action[2] and action[2]:render() or ''))
           end
         end
         return pandoc.Blocks(ret)
@@ -150,9 +151,19 @@ return {
       -- TODO: walk the header object so as to fix italics in a better way
       if FORMAT == 'ms' then
         -- We need to know this so we can switch back to it
-        local docfam = utils.stringify(vars['fontfamily'] or '')
-        local hfam = utils.stringify(vars['heading-fontfam'] or '')
-        local lvl = tonumber(utils.stringify(vars['heading-fontfam-max-level'] or '4'))
+        local docfam = ''
+        local hfam = ''
+        local lvl = '4'
+        if vars['fontfamily'] then
+            docfam = vars['fontfamily']:render()
+        end
+        if vars['heading-fontfam'] then
+            hfam = vars['heading-fontfam']:render()
+        end
+        if vars['heading-fontfam-max-level'] then
+            lvl = vars['heading-fontfam-max-level']:render()
+        end
+        lvl = tonumber(lvl)
         if #docfam > 0 and #hfam > 0 and h.level <= lvl then
           -- Emph in headline switches to \f[B] at the end, which is correct.
           -- However, this font change makes it into the table of contents.
